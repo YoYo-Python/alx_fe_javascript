@@ -10,13 +10,31 @@
 
 <body>
     <h1>Dynamic Quote Generator</h1>
+
     <div id="quoteDisplay"></div>
-    <button id="newQuote">Show New Quote</button>
-    <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
-    <label for="importFile" class="custom-file-upload">
-        Import JSON File 📤
-    </label>
-    <button type="button" id="exportBtn">Export Quotes</button>
+
+    <div class="controls-container">
+        <button id="newQuote">Show New Quote</button>
+
+        <select id="categoryFilter">
+        </select>
+
+        <hr>
+        <div class="file-io-controls">
+            <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
+            <label for="importFile" class="custom-file-upload">
+                Import JSON File 📤
+            </label>
+            <button type="button" id="exportBtn">Export Quotes</button>
+        </div>
+
+        <hr>
+
+        <div id="addQuoteFormContainer">
+        </div>
+
+    </div>
+
     <script src="script.js"></script>
 </body>
 
