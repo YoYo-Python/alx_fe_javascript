@@ -2,49 +2,36 @@ let quotes = [
     { text: "The best way to predict the future is to invent it.", category: "Inspiration" },
     { text: "Your time is limited, so don’t waste it living someone else’s life.", category: "Inspiration" },
     { text: "Everything you’ve ever wanted is on the other side of fear.", category: "Inspiration" },
-    { text: "Happiness is not something ready made. It comes from your own actions.", category: "Inspiration" },
-    { text: "Believe you can and you're halfway there.", category: "Inspiration" },
-    { text: "Do not wait to strike till the iron is hot, but make it hot by striking.", category: "Motivation" },
-    { text: "It always seems impossible until it’s done.", category: "Motivation" },
-    { text: "Act as if what you do makes a difference. It does.", category: "Motivation" },
-    { text: "Hard work beats talent when talent doesn’t work hard.", category: "Motivation" },
-    { text: "Don’t watch the clock; do what it does. Keep going.", category: "Motivation" },
-    { text: "In the middle of every difficulty lies opportunity.", category: "Life" },
-    { text: "Life is what happens when you’re busy making other plans.", category: "Life" },
-    { text: "The purpose of our lives is to be happy.", category: "Life" },
-    { text: "Difficulties in life don’t come to destroy you, but to help you realize your hidden potential.", category: "Life" },
-    { text: "Life is really simple, but we insist on making it complicated.", category: "Life" },
-    { text: "Success is not the key to happiness. Happiness is the key to success.", category: "Success" },
-    { text: "Opportunities don’t happen. You create them.", category: "Success" },
-    { text: "Success usually comes to those who are too busy to be looking for it.", category: "Success" },
-    { text: "The road to success and the road to failure are almost exactly the same.", category: "Success" },
-    { text: "Don’t be afraid to give up the good to go for the great.", category: "Success" },
-    { text: "Knowing yourself is the beginning of all wisdom.", category: "Wisdom" },
-    { text: "The only true wisdom is in knowing you know nothing.", category: "Wisdom" },
-    { text: "Educating the mind without educating the heart is no education at all.", category: "Wisdom" },
-    { text: "Wise men speak because they have something to say; fools because they have to say something.", category: "Wisdom" },
-    { text: "Turn your wounds into wisdom.", category: "Wisdom" },
-    { text: "Fall seven times and stand up eight.", category: "Perseverance" },
-    { text: "Great works are performed not by strength but by perseverance.", category: "Perseverance" },
-    { text: "A river cuts through rock not because of its power, but because of its persistence.", category: "Perseverance" },
-    { text: "Courage doesn’t always roar. Sometimes courage is the quiet voice at the end of the day saying, ‘I will try again tomorrow.’", category: "Perseverance" },
-    { text: "Perseverance is not a long race; it is many short races one after the other.", category: "Perseverance" },
-    { text: "I am so clever that sometimes I don’t understand a single word of what I am saying.", category: "Humor" },
-    { text: "People say nothing is impossible, but I do nothing every day.", category: "Humor" },
-    { text: "Behind every great man is a woman rolling her eyes.", category: "Humor" },
-    { text: "If you think you are too small to make a difference, try sleeping with a mosquito.", category: "Humor" },
-    { text: "I can resist everything except temptation.", category: "Humor" }
+    
 ];
 
+// Load from localStorage if exists
+if (localStorage.getItem("quotes")) {
+    quotes = JSON.parse(localStorage.getItem("quotes"));
+}
+
+function saveQuotes() {
+    localStorage.setItem("quotes", JSON.stringify(quotes));
+}
+
+// NOTE: quoteDisplay and newQuoteBtn will cause an error if the elements 
+// with these IDs don't exist in your HTML.
 const quoteDisplay = document.getElementById('quoteDisplay');
 const newQuoteBtn = document.getElementById('newQuote');
+
+// REMOVED BROKEN DOWNLOAD BUTTON CREATION HERE
 
 function showRandomQuote() {
     const randomIndex = Math.floor(Math.random() * quotes.length);
     const quote = quotes[randomIndex];
 
-    quoteDisplay.innerHTML = `<blockquote>${quote.text}</blockquote>
-    <p><em>Category: ${quote.category}</em></p>`;
+    // Added a check to prevent errors if quoteDisplay isn't found
+    if (quoteDisplay) {
+        quoteDisplay.innerHTML = `<blockquote>${quote.text}</blockquote>
+        <p><em>Category: ${quote.category}</em></p>`;
+    } else {
+        console.error("Element with ID 'quoteDisplay' not found.");
+    }
 }
 
 function createAddQuoteForm() {
@@ -76,23 +63,70 @@ function createAddQuoteForm() {
 
     form.addEventListener("submit", function (e) {
         e.preventDefault();
-        const newQuote = {
-            text: textInput.value.trim(),
-            category: categoryInput.value.trim()
-        };
 
-        quotes.push(newQuote);
+        const text = textInput.value.trim();
+        const category = categoryInput.value.trim();
 
-        textInput.value = '';
-        categoryInput.value = '';
+        if (text && category) {
+            const newQuote = { text, category };
+            quotes.push(newQuote);
+            saveQuotes(); // Save to localStorage
 
-        quoteDisplay.innerHTML = `<blockquote>${newQuote.text}</blockquote>
-        <p><em>Category: ${newQuote.category}</em></p>`;
+            if (quoteDisplay) {
+                quoteDisplay.innerHTML = `<blockquote>${newQuote.text}</blockquote>
+                <p><em>Category: ${newQuote.category}</em></p>`;
+            }
+
+            alert("Quote added successfully!");
+            form.reset();
+        }
     });
 }
 
+// Function to trigger the download (this part is correct)
+function exportJsonToFile(jsonData, filename = 'data.json') {
+    const jsonString = JSON.stringify(jsonData, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+
+    document.body.appendChild(a);
+    a.click(); // This is what triggers the download
+
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+function importFromJsonFile(event) {
+    const fileReader = new FileReader();
+    fileReader.onload = function (event) {
+        const importedQuotes = JSON.parse(event.target.result);
+        quotes.push(...importedQuotes);
+        saveQuotes();
+        alert('Quotes imported successfully!');
+    };
+    fileReader.readAsText(event.target.files[0]);
+}
+// The correct and consolidated download button creation and listener
+const downloadButton = document.createElement('button');
+downloadButton.id = 'export-json-button';
+downloadButton.textContent = 'DOWNLOAD QUOTES JSON'
+
+document.body.appendChild(downloadButton);
+
+downloadButton.addEventListener('click', () => {
+    exportJsonToFile(quotes, 'quotes_backup.json');
+});
+
+
 // Event listeners
-newQuoteBtn.addEventListener("click", showRandomQuote);
+if (newQuoteBtn) {
+    newQuoteBtn.addEventListener("click", showRandomQuote);
+} else {
+    console.error("Element with ID 'newQuote' not found. Random quote button won't work.");
+}
 
 // Initial setup
 showRandomQuote();
