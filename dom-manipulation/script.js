@@ -124,6 +124,7 @@ function showRandomQuoteFromSet(quoteSet) {
 // --- 4. CRUD and I/O Functions (Refined) ---
 
 function createAddQuoteForm() {
+    // ... (All the form element creation code remains the same) ...
     const form = document.createElement('form');
     form.id = 'addQuoteForm'; // Give the form an ID
 
@@ -147,20 +148,20 @@ function createAddQuoteForm() {
 
     form.appendChild(textLabel);
     form.appendChild(textInput);
-    form.appendChild(document.createElement('br')); // Add spacing
+    form.appendChild(document.createElement('br'));
     form.appendChild(categoryLabel);
     form.appendChild(categoryInput);
     form.appendChild(document.createElement('br'));
     form.appendChild(submitBtn);
 
-    // Append form to the new dedicated container
+    // Append form to the new dedicated container (addQuoteFormContainer)
     if (addQuoteFormContainer) {
         addQuoteFormContainer.appendChild(form);
     } else {
-        document.body.appendChild(form); // Fallback
+        document.body.appendChild(form);
     }
 
-    // Form Submission Logic
+    // Form Submission Logic (UPDATED)
     form.addEventListener("submit", function (e) {
         e.preventDefault();
 
@@ -170,12 +171,13 @@ function createAddQuoteForm() {
         if (text && category) {
             const newQuote = { text, category };
             quotes.push(newQuote);
-            saveQuotes();
+            saveQuotes(); // 1. Save new quote data to Local Storage
 
-            // Re-populate categories in case a new one was added
+            // 2. IMPORTANT: Update the categories dropdown 
+            //    This ensures the new category appears immediately if one was added.
             populateCategories();
 
-            // Display the newly added quote
+            // 3. Display the newly added quote
             showRandomQuoteFromSet([newQuote]);
 
             alert("Quote added successfully! Categories updated.");
@@ -183,7 +185,6 @@ function createAddQuoteForm() {
         }
     });
 }
-
 
 /**
  * Function to trigger the download of the JSON data.
