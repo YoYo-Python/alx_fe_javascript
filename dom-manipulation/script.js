@@ -110,13 +110,9 @@ function importFromJsonFile(event) {
     fileReader.readAsText(event.target.files[0]);
 }
 // The correct and consolidated download button creation and listener
-const downloadButton = document.createElement('button');
-downloadButton.id = 'export-json-button';
-downloadButton.textContent = 'DOWNLOAD QUOTES JSON'
+const exportButton = document.getElementById('exportBtn');
 
-document.body.appendChild(downloadButton);
-
-downloadButton.addEventListener('click', () => {
+exportButton.addEventListener('click', () => {
     exportJsonToFile(quotes, 'quotes_backup.json');
 });
 
